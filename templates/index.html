@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Pythonpédia – Accueil</title>
+
+  <!-- Feuille de style Flask (liée à /static/style.css) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style1.css') }}">
+
+</head>
+
+<body>
+  <!-- Bannière principale -->
+  <header>
+    <h1>Pythonpédia</h1>
+  </header>
+
+  <main>
+
+    <!-- Section : présentation du projet -->
+    <section>
+      <h2>À propos</h2>
+      <p>
+        <strong>Pythonpédia</strong> est une encyclopédie distribuée : chaque serveur héberge une partie 
+        de la base de données et partage ses informations avec les autres serveurs du réseau.  
+        L’objectif est de construire une base de connaissances collective et ouverte sur n'importe quel type de langage de programmation.
+      </p>
+
+      <div class="card">
+        <h3>🌐 Comment fonctionne Pythonpédia&nbsp;?</h3>
+        <p>
+          Chaque ordinateur participant au projet représente un <strong>serveur</strong> du réseau Pythonpédia.  
+          Ces serveurs échangent leurs données (topics, items, URLs) grâce à une API REST commune :
+        </p>
+        <ul style="margin-left:20px;">
+          <li>🔹 Chaque serveur stocke ses données dans un <code>fichier.json</code> ou dans une BDD.</li>
+          <li>🔹 Il publie ses ressources via <code>/ws/topics</code> et <code>/ws/topic/&lt;topic&gt;</code></li>
+          <li>🔹 Il découvre ses pairs avec <code>/ws/annuaire</code></li>
+          <li>🔹 Le script <code>sync.py</code> permet de synchroniser automatiquement les serveurs</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Section : API REST -->
+    <section>
+      <h2>API publique</h2>
+      <p>
+        Pythonpédia met à disposition une <strong>API REST</strong> permettant d’accéder aux données locales 
+        (topics, items et URLs) et à la liste des serveurs connus du réseau.  
+        Pour plus de détails sur les endpoints et les exemples d’appels, consultez la 
+        documentation technique</a>.
+      </p>
+    </section>
+
+    <!-- Section : Guide d’utilisation -->
+    <section>
+      <h2>Comment utiliser Pythonpédia</h2>
+      <p>Pour profiter pleinement du service&nbsp;:</p>
+      <ul style="margin-left:20px;">
+        <li> Naviguez dans les thèmes via l’interface interactive,</li>
+        <li> Découvrez l’API complète dans la documentation,</li>
+        <li> Synchronisez vos données locales avec <code>sync.py</code> ou le bouton “Réplication”.</li>
+      </ul>
+    </section>
+
+    <!-- Section : navigation locale (cartes d’accès rapides) -->
+    <section>
+      <h2>Navigation locale</h2>
+      <div class="cards">
+
+        <!-- Carte 1 : Interface interactive -->
+        <div class="card">
+          <h3>💡 Interface interactive</h3>
+          <p>Explorez les topics, items et serveurs connus via une interface dynamique.</p>
+          <a class="btn" href="/ui">Accéder à l’interface</a>
+        </div>
+
+        <!-- Carte 2 : Documentation technique -->
+        <div class="card">
+          <h3>📄 Documentation</h3>
+          <p>Consultez la documentation technique complète du projet et de l’API.</p>
+          <a class="btn" href="/documentation">Ouvrir la documentation</a>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Pied de page -->
+  <footer>
+    <hr>
+    <p><small>
+      Projet universitaire — <strong>Pythonpédia</strong><br>
+      Développé avec <a href="https://flask.palletsprojects.com/" target="_blank">Flask</a>  
+      | Auteur : <em>Coletta Moutsiha</em>  
+      | Master 2 Data Science — Université d’Angers (2025–2026)
+    </small></p>
+  </footer>
+</body>
+</html>

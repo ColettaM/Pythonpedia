@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Pythonpédia – Interface interactive</title>
+
+  <!-- Feuille de style principale servie par Flask -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+  <!-- Styles locaux spécifiques à l’interface (layout 3 colonnes, cartes, listes…) -->
+  <style>
+    /* Grille principale : Topics | Détails | Annuaire */
+    .grid { display: grid; grid-template-columns: 280px 1fr 320px; gap: 16px; align-items: start; }
+
+    /* Carte générique avec bord doux (utilisée pour chaque colonne) */
+    .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 14px; }
+    .card h2 { margin: 0 0 8px; font-size: 1.1rem; }
+
+    /* Listes “propres” cliquables */
+    .list { list-style: none; padding: 0; margin: 0; }
+    .list li { padding: 6px 8px; border-radius: 8px; cursor: pointer; }
+    .list li:hover { background: #f3f4f6; }
+
+    /* Styles utilitaires */
+    .muted { color: #6b7280; }
+    .urls a { display: inline-block; margin: 2px 0; }
+
+    /* Boutons primaires (lien .btn et <button>) */
+    .btn, button { display: inline-block; padding: 8px 12px; border-radius: 8px; border: 1px solid #111827; background: #111827; color: #fff; text-decoration: none; cursor: pointer; }
+    .btn:hover, button:hover { filter: brightness(1.05); }
+
+    /* Champs texte cohérents */
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 8px; border-radius: 8px; border: 1px solid #d1d5db; }
+
+    /* Ligne flexible (alignement horizontal + espacement) */
+    .row { display: flex; gap: 8px; align-items: center; }
+
+    /* Pastilles et badge */
+    .chip { display:inline-block; padding:2px 8px; border-radius:999px; background:#eef2ff; font-size:.85rem; margin:2px 6px 2px 0; }
+    pre.badge { display:inline-block; background:#f3f4f6; padding:2px 6px; border-radius:6px; }
+  </style>
+</head>
+
+<body>
+  <!-- En-tête  -->
+  <header style="margin:16px 0 24px">
+    
+    <h1>Pythonpédia – Interface interactive</h1>
+    <p class="muted">
+      Naviguez dans les <span class="chip">topics</span>, consultez leurs items/URLs, gérez l’annuaire local,
+      et lancez une <strong>réplication automatique</strong>.
+    </p>
+
+    <!-- Saisie du token admin -->
+    <div id="authBox" style="margin-top:12px;">
+      <label for="tokenInput"><strong>Clé administrateur :</strong></label>
+      <input id="tokenInput" type="password" placeholder="Saisir le mot de passe admin" style="margin-left:8px; padding:6px;">
+      <button id="btnSaveToken">Valider</button>
+      <span id="tokenStatus" class="muted" style="margin-left:8px;"></span>
+    </div>
+
+    <!-- Bouton pour déclencher /admin/sync (protégé par X-API-Key) -->
+    <div class="row" style="margin-top:10px;">
+      <button id="btnSync">synchroniser</button>
+      <span id="syncMsg" class="muted" style="margin-left:8px;"></span>
+    </div>
+  </header>
+
+  <!-- Grille principale : 3 colonnes -->
+  <main class="grid">
+    <!-- Colonne 1 : Liste des topics -->
+    <section class="card">
+      <h2>Topics</h2>
+      <div class="row" style="margin-bottom:8px">
+        <button id="btnLoadTopics">Charger</button>
+        <span id="topicsCount" class="muted" style="align-self:center"></span>
+      </div>
+      <ul id="topicsList" class="list"></ul>
+    </section>
+
+    <!-- Colonne 2 : Détails d’un topic (items + URLs) -->
+    <section class="card">
+      <h2>Détails du topic</h2>
+      <div id="topicTitle" class="muted">Sélectionnez un topic…</div>
+      <div id="topicContent"></div>
+    </section>
+
+    <!-- Colonne 3 : Annuaire (serveurs connus) -->
+    <aside class="card">
+      <h2>Annuaire</h2>
+      <div class="row" style="margin-bottom:8px">
+        <button id="btnLoadAnnuaire">Actualiser</button>
+        <span id="annCount" class="muted" style="align-self:center"></span>
+      </div>
+
+      <!-- Liste des serveurs + bouton de vérification -->
+      <ul id="annList" class="list" style="margin-bottom:12px"></ul>
+
+      <!-- Formulaire d’ajout d’un serveur à l’annuaire local -->
+      <h3>Ajouter un serveur</h3>
+      <p class="muted">Format : <code>http://IP:PORT</code> ou <code>http://hostname:PORT</code></p>
+      <div class="row">
+        <input id="serverUrl" type="text" placeholder="http://172.20.xx.yy:8888">
+        <button id="btnAdd">Ajouter</button>
+      </div>
+      <div id="addMsg" class="muted" style="margin-top:8px"></div>
+    </aside>
+  </main>
+
+  <!-- Retour à l’accueil -->
+  <div style="margin:24px 0;">
+  <a class="btn" href="/">← Retour</a>
+  </div>
+
+  <!-- Pied de page -->
+  <footer>
+    <hr>
+    <p><small>
+      Projet universitaire — <strong>Pythonpédia</strong><br>
+      Développé avec <a href="https://flask.palletsprojects.com/" target="_blank">Flask</a>  
+      | Auteur : <em>Coletta Moutsiha</em>  
+      | Master 2 Data Science — Université d’Angers (2025–2026)
+    </small></p>
+  </footer>
+
+  <!-- Logique JavaScript de l’interface -->
+  <script>
+    // -------------------------------------------------------
+    //  Gestion du token administrateur 
+    // -------------------------------------------------------
+    
+    // --- let ADMIN_TOKEN = localStorage.getItem("ADMIN_TOKEN") || ""; --- pour le stockage local
+    let ADMIN_TOKEN = "";
+
+    document.getElementById("btnSaveToken").addEventListener("click", () => {
+      const val = document.getElementById("tokenInput").value.trim();
+      if (!val) {
+        document.getElementById("tokenStatus").textContent = "Saisir un mot de passe.";
+        return;
+      }
+      ADMIN_TOKEN = val;
+      // --- localStorage.setItem("ADMIN_TOKEN", val); --- 
+      document.getElementById("tokenStatus").textContent = "mot de passe enregistré localement.";
+    });
+
+    // -------------------------------------------------------
+    // Références rapides aux éléments du DOM
+    // -------------------------------------------------------
+    const topicsList   = document.getElementById('topicsList');
+    const topicsCount  = document.getElementById('topicsCount');
+    const topicTitle   = document.getElementById('topicTitle');
+    const topicContent = document.getElementById('topicContent');
+
+    const annList   = document.getElementById('annList');
+    const annCount  = document.getElementById('annCount');
+    const addMsg    = document.getElementById('addMsg');
+    const serverUrl = document.getElementById('serverUrl');
+    const syncMsg   = document.getElementById('syncMsg');
+    const btnSync   = document.getElementById('btnSync');
+
+    // Association des boutons aux fonctions
+    document.getElementById('btnLoadTopics').addEventListener('click', loadTopics);
+    document.getElementById('btnLoadAnnuaire').addEventListener('click', loadAnnuaire);
+    document.getElementById('btnAdd').addEventListener('click', addServer);
+
+    // -------------------------------------------------------
+    // Réplication (POST /admin/sync) 
+    // -------------------------------------------------------
+    btnSync.addEventListener("click", async () => {
+      if (!ADMIN_TOKEN) { alert("Entrez d'abord la clé administrateur avant de lancer la synchronisation."); return; }
+
+      syncMsg.textContent = "⏳ Réplication en cours…";
+      btnSync.disabled = true;
+      try {
+        const r = await fetch("/admin/sync", {
+          method: "POST",
+          headers: { "X-API-Key": ADMIN_TOKEN }
+        });
+        
+        const data = await r.json();
+        if (data.ok) {
+          syncMsg.textContent = "✅ " + data.message;
+          // Après une réplication on recharge la vue
+          loadTopics();
+          loadAnnuaire();
+        } else {
+          syncMsg.textContent = " " + (data.error || "Erreur inconnue");
+        }
+      } catch (e) {
+        syncMsg.textContent = "Erreur : " + e.message;
+      }
+      btnSync.disabled = false;
+    });
+
+    // -------------------------------------------------------
+    // Gestion des Topics (GET /ws/topics et /ws/topic/<t>)
+    // -------------------------------------------------------
+    async function loadTopics() {
+      topicsList.innerHTML = '<li class="muted">Chargement…</li>';
+      try {
+        const r = await fetch('/ws/topics');
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const topics = await r.json();
+
+        topicsCount.textContent = `(${topics.length})`;
+        topicsList.innerHTML = '';
+
+        // Création d’items cliquables (showTopic)
+        topics.forEach(t => {
+          const li = document.createElement('li');
+          li.textContent = t;
+          li.title = 'Voir les items et URLs';
+          li.addEventListener('click', () => showTopic(t));
+          topicsList.appendChild(li);
+        });
+      } catch (e) {
+        topicsList.innerHTML = `<li class="muted">Erreur: ${e}</li>`;
+      }
+    }
+
+    async function showTopic(topic) {
+      // Affiche le nom du topic et un indicateur de chargement
+      topicTitle.innerHTML = `Topic: <pre class="badge">${topic}</pre>`;
+      topicContent.innerHTML = 'Chargement…';
+      try {
+        const encoded = encodeURIComponent(topic);
+        const r = await fetch(`/ws/topic/${encoded}`);
+        if (!r.ok) {
+          const msg = await r.json().catch(()=> '');
+          throw new Error(msg?.error || ('HTTP ' + r.status));
+        }
+        const data = await r.json();
+
+        // Construction dynamique du contenu (items + URLs)
+        const container = document.createElement('div');
+        Object.entries(data).forEach(([item, urls]) => {
+          const sec = document.createElement('section');
+          sec.style.marginBottom = '10px';
+
+          const h3 = document.createElement('h3');
+          h3.innerHTML = `<span class="chip">${item}</span>`;
+
+          const div = document.createElement('div');
+          div.className = 'urls';
+
+          if (!urls || urls.length === 0) {
+            div.innerHTML = '<span class="muted">—</span>';
+          } else {
+            urls.forEach(u => {
+              const a = document.createElement('a');
+              a.href = u; a.target = '_blank'; a.rel = 'noopener';
+              a.textContent = u;
+              div.appendChild(a);
+              div.appendChild(document.createElement('br'));
+            });
+          }
+
+          sec.appendChild(h3);
+          sec.appendChild(div);
+          container.appendChild(sec);
+        });
+
+        topicContent.innerHTML = '';
+        topicContent.appendChild(container);
+      } catch (e) {
+        topicContent.innerHTML = `<span class="muted">Erreur: ${e}</span>`;
+      }
+    }
+
+    // -------------------------------------------------------
+    // Gestion de l’annuaire (GET /ws/annuaire, POST /ws/annuaire)
+    // -------------------------------------------------------
+    async function loadAnnuaire() {
+      annList.innerHTML = '<li class="muted">Chargement…</li>';
+      try {
+        const r = await fetch('/ws/annuaire');
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const servers = await r.json();
+
+        annCount.textContent = `(${servers.length})`;
+        annList.innerHTML = '';
+
+        if (servers.length === 0) {
+          annList.innerHTML = '<li class="muted">Aucun serveur connu.</li>';
+          return;
+        }
+
+        // Pour chaque serveur : lien + bouton “Vérifier”
+        servers.forEach(server => {
+          const li = document.createElement('li');
+
+          // Lien direct vers la racine du serveur
+          const link = document.createElement('a');
+          link.href = server; link.target = '_blank'; link.textContent = server;
+
+          // Bouton “Vérifier” = ping très simple de /ws/topics
+          const btn = document.createElement('button');
+          btn.textContent = 'Vérifier';
+          btn.style.marginLeft = '8px';
+
+          // Zone d’état (en ligne / hors ligne)
+          const statusSpan = document.createElement('span');
+          statusSpan.className = 'muted';
+          statusSpan.style.marginLeft = '8px';
+
+          btn.addEventListener('click', async () => {
+            statusSpan.textContent = '⏳ Vérification...';
+            statusSpan.style.color = 'gray';
+            try {
+              // NB : mode:no-cors n’expose pas la réponse, mais suffit pour détecter des erreurs réseau.
+              await fetch(server + '/ws/topics', { method: 'GET', mode: 'no-cors' });
+              statusSpan.textContent = '✅ En ligne';
+              statusSpan.style.color = 'green';
+            } catch {
+              statusSpan.textContent = '❌ Hors ligne';
+              statusSpan.style.color = 'red';
+            }
+          });
+
+          li.appendChild(link);
+          li.appendChild(btn);
+          li.appendChild(statusSpan);
+          annList.appendChild(li);
+        });
+      } catch (e) {
+        annList.innerHTML = `<li class="muted">Erreur: ${e}</li>`;
+      }
+    }
+
+    // Ajout manuel d'un nouveau serveur (protégé par le token admin)
+    async function addServer() {
+      if (!ADMIN_TOKEN) { addMsg.textContent = "Entrez d'abord la clé administrateur."; return; }
+
+      addMsg.textContent = '';
+      const url = (serverUrl.value || '').trim();
+      if (!url) { addMsg.textContent = "Saisis une URL."; return; }
+
+      try {
+        const r = await fetch('/ws/annuaire', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': ADMIN_TOKEN
+          },
+          body: JSON.stringify({ url })
+        });
+        const payload = await r.json().catch(()=> ({}));
+        if (!r.ok) throw new Error(payload?.error || ('HTTP ' + r.status));
+
+        addMsg.textContent = 'Serveur ajouté ✅';
+        serverUrl.value = '';
+        loadAnnuaire(); // Rafraîchit la liste
+      } catch (e) {
+        addMsg.textContent = 'Erreur: ' + e.message;
+      }
+    }
+
+    // -------------------------------------------------------
+    // Chargements initiaux des données
+    // -------------------------------------------------------
+    loadTopics();
+    loadAnnuaire();
+  </script>
+</body>
+</html>

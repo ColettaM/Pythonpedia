@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Documentation – Pythonpédia</title>
+
+  <!-- Feuille de style principale du projet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style1.css') }}">
+
+</head>
+
+<body>
+  <header>
+    <h1>Pythonpédia- Documentation technique</h1>
+  </header>
+
+  <main>
+  <!-- Introduction générale -->
+  <p><strong>Pythonpédia</strong> est une encyclopédie collaborative et distribuée sur le langage <strong>Python</strong>.  
+  Chaque serveur héberge une partie de la base de données (topics, items et URLs) et expose une API REST publique interrogeable.</p>
+
+  <!-- Section 1 : Structure du fichier db.json -->
+  <h2>1. Structure des données</h2>
+  <p>Les données sont stockées localement dans un fichier <code>db.json</code> :</p>
+
+  <pre>{
+  "topics": {
+    "fonctions": {
+      "définition": ["https://docs.python.org/..."],
+      "exemple": ["https://realpython.com/..."]
+    },
+    "POO": {
+      "tuto": ["https://realpython.com/python3-object-oriented-programming/"],
+      "exemple": ["https://docs.python.org/..."]
+    }
+  },
+  "annuaire": [
+    "http://172.20.45.142:8888",
+    "http://172.20.45.149:8888"
+  ]
+}</pre>
+
+  <p>Chaque <strong>topic</strong> regroupe plusieurs <strong>items</strong>, et chaque item contient une ou plusieurs URLs utiles.</p>
+
+  <!-- Section 2 : API publique -->
+  <h2>2. Endpoints REST publics</h2>
+  <table>
+    <tr><th>Méthode</th><th>URL</th><th>Description</th><th>Exemple</th></tr>
+    <tr>
+      <td>GET</td>
+      <td><code>/ws/topics</code></td>
+      <td>Renvoie la liste des topics disponibles localement.</td>
+      <td><pre>["types", "fonctions", "multithreading", "POO"]</pre></td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td><code>/ws/topic/&lt;topic&gt;</code></td>
+      <td>Renvoie les items et URLs d’un topic donné.</td>
+      <td><pre>{
+  "exemple": ["https://realpython.com/..."],
+  "définition": ["https://docs.python.org/..."]
+}</pre></td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td><code>/ws/annuaire</code></td>
+      <td>Renvoie la liste des serveurs connus par le serveur local.</td>
+      <td><pre>[
+  "http://172.20.45.142:8888",
+  "http://172.20.45.149:8888"
+]</pre></td>
+    </tr>
+  </table>
+
+  <!-- Section 3 : Routes administratives -->
+  <h2>3. Endpoints administratifs (protégés)</h2>
+  <p>Ces routes sont réservées à l’administrateur local et nécessitent une clé API définie dans le fichier <code>.env</code> :</p>
+
+  <div class="note">
+    Clé par défaut : <code>ADMIN_TOKEN=XXXX</code>  
+    À envoyer dans le header HTTP : <code>X-API-Key</code><br><br>
+    💡 Pour des raisons de sécurité, la clé administrateur n’est pas mémorisée sur les postes :
+    elle doit être ressaisie à chaque utilisation de l’interface.
+  </div>
+
+  <table>
+    <tr><th>Méthode</th><th>URL</th><th>Action</th></tr>
+    <tr>
+      <td>POST</td>
+      <td><code>/ws/annuaire</code></td>
+      <td>Ajoute un nouveau serveur à l’annuaire local.</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td><code>/admin/sync</code></td>
+      <td>Déclenche la réplication automatique des données locales (équivaut à exécuter <code>python3 sync.py</code>).</td>
+    </tr>
+  </table>
+
+  <!-- Section 4 : Exemples pratiques -->
+  <h2>4. Exemple d’utilisation</h2>
+  <p>Les endpoints peuvent être testés facilement avec <code>curl</code> :</p>
+  <pre>
+curl http://localhost:8888/ws/topics
+curl http://localhost:8888/ws/topic/fonctions
+curl http://localhost:8888/ws/annuaire
+  </pre>
+
+  <!-- Section 5 : Réplication et découverte -->
+  <h2>5. Réplication et découverte</h2>
+  <p>Chaque serveur Pythonpédia peut s’enrichir automatiquement :</p>
+  <ul>
+    <li>🔁<strong>Réplication :</strong> fusion des topics et URLs depuis les pairs connus.</li>
+    <li>🌍<strong>Découverte :</strong> ajout automatique des serveurs trouvés via <code>/ws/annuaire</code>.</li>
+    <li>🧩<strong>Exécution locale :</strong> via le script <code>sync.py</code> ou la route <code>/admin/sync</code>.</li>
+  </ul>
+
+  <!-- Section 6 : Interface utilisateur -->
+  <h2>6. Interface locale</h2>
+  <p>Pour explorer les données hébergées localement :
+  <!-- Lien vers l’interface interactive -->
+  <a href="/ui">Accéder à l’interface interactive</a></p>
+
+  <!-- Bouton de retour -->
+  <div style="margin:24px 0;">
+    <a class="btn" href="/">← Retour</a>
+  </div>
+  </main>
+
+  <!-- Pied de page -->
+  <footer>
+    <hr>
+    <p><small>
+      Projet universitaire — <strong>Pythonpédia</strong><br>
+      Développé avec <a href="https://flask.palletsprojects.com/" target="_blank">Flask</a>  
+      | Auteur : <em>Coletta Moutsiha</em>  
+      | Master 2 Data Science — Université d’Angers (2025–2026)
+    </small></p>
+  </footer>
+</body>
+</html>

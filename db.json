@@ -1,0 +1,174 @@
+{
+  "topics": {
+    "Papa": {
+      "définition": [
+        "https://docs.python.org/3/library/stdtypes.html",
+        "https://docs.python.org/fr/3/library/stdtypes.html"
+      ],
+      "tuto": [
+        "https://realpython.com/python-data-types/"
+      ],
+      "foruum": [
+        "https://stackoverflow.com/questions/tagged/python-types"
+      ]
+    },
+    "fonctions": {
+      "définition": [
+        "https://docs.python.org/3/tutorial/controlflow.html#defining-functions",
+        "https://docs.python.org/3/tutorial/controlflow.server_url",
+        "https://docs.python.org/fr/3/tutorial/controlflow.html#defining-functions"
+      ],
+      "exemple": [
+        "https://realpython.com/defining-your-own-python-function/",
+        "https://www.w3schools.com/python/python_functions.asp"
+      ],
+      "bonne pratique": [
+        "https://peps.python.org/pep-0008/"
+      ],
+      "astuce": [
+        "https://realpython.com/defining-your-own-python-function/"
+      ],
+      "bonne_pratique": [
+        "https://peps.python.org/pep-8/#function-and-variable-names"
+      ]
+    },
+    "multithreading": {
+      "exemple": [
+        "https://realpython.com/intro-to-python-threading/"
+      ],
+      "FAQ": [
+        "https://docs.python.org/3/faq/library.html#threading",
+        "https://stackoverflow.com/questions/71471135/python-multithreading"
+      ],
+      "piège": [
+        "https://docs.python.org/3/library/threading.html#threads-and-gil",
+        "https://superfastpython.com/python-gil/"
+      ],
+      "module": [
+        "https://docs.python.org/3/library/threading.html"
+      ]
+    },
+    "POO": {
+      "tuto": [
+        "https://realpython.com/python3-object-oriented-programming/",
+        "https://www.reddit.com/r/typescript/comments/x4cj6p/how_to_learn_oop/?tl=fr"
+      ],
+      "exemple": [
+        "https://docs.python.org/fr/3/tutorial/classes.html",
+        "https://www.w3schools.com/python/python_classes.asp"
+      ]
+    },
+    "types de données": {
+      "définition": [
+        "https://docs.python.org/3/library/stdtypes.html"
+      ],
+      "forum": [
+        "https://stackoverflow.com/questions/tagged/python-types"
+      ],
+      "tuto": [
+        "https://realpython.com/python-data-types/"
+      ]
+    },
+    "Arretes avec tes betises": {
+      "astuce": [
+        "https://realpython.com/defining-your-own-python-function/"
+      ],
+      "bonne_pratique": [
+        "https://peps.python.org/pep-8/#function-and-variable-names"
+      ],
+      "définition": [
+        "https://docs.python.org/3/tutorial/controlflow.html#defining-functions"
+      ],
+      "exemple": [
+        "https://www.w3schools.com/python/python_functions.asp"
+      ]
+    },
+    "multithreading- ESCOBAR": {
+      "FAQ": [
+        "https://stackoverflow.com/questions/71471135/python-multithreading"
+      ],
+      "exemple": [
+        "https://realpython.com/intro-to-python-threading/"
+      ],
+      "module": [
+        "https://docs.python.org/3/library/threading.html"
+      ],
+      "piège": [
+        "https://docs.python.org/3/library/threading.html#threads-and-gil"
+      ]
+    },
+    "Machine learning": {
+      "FAQ": [
+        ""
+      ],
+      "exemple": [
+        ""
+      ],
+      "tuto": [
+        "https://www.datacamp.com/fr/blog/top-python-libraries-for-data-science"
+      ]
+    },
+    "Modules standards : os": {
+      "FAQ": [
+        "https://stackoverflow.com/questions/tagged/python-os"
+      ],
+      "dfinition": [
+        "https://docs.python.org/3/library/os.html"
+      ]
+    },
+    "Réseaux et API": {
+      "FAQ": [
+        "https://www.docstring.fr/formations/faq/modules/"
+      ],
+      "definition": [
+        "https://fr.wikibooks.org/wiki/Programmation_Python/R%C3%A9seau",
+        "https://realpython-com.translate.goog/python-api/?_x_tr_sl=en&_x_tr_tl=fr&_x_tr_hl=fr&_x_tr_pto=rq"
+      ],
+      "exemple": [
+        "https://realpython.com/python-requests/"
+      ],
+      "tuto": [
+        "https://www.datacamp.com/fr/tutorial/python-api"
+      ]
+    },
+    "Never give up La négrita": {
+      "exemple": [
+        "https://www.w3schools.com/python/python_classes.asp"
+      ],
+      "tuto": [
+        "https://realpython.com/python3-object-oriented-programming/"
+      ]
+    },
+    "Essaie encore": {
+      "définition": [
+        "https://docs.python.org/3/library/stdtypes.html"
+      ],
+      "forum": [
+        "https://stackoverflow.com/questions/tagged/python-types"
+      ],
+      "tuto": [
+        "https://realpython.com/python-data-types/"
+      ]
+    },
+    "mama": {
+      "exemple": [
+        "https://www.w3schools.com/python/python_classes.asp"
+      ],
+      "tuto": [
+        "https://realpython.com/python3-object-oriented-programming/"
+      ]
+    },
+    "Aurevoir": {
+      "exemple": [
+        "https://www.w3schools.com/python/python_classes.asp"
+      ],
+      "tuto": [
+        "https://realpython.com/python3-object-oriented-programming/"
+      ]
+    }
+  },
+  "annuaire": [
+    "http://172.20.45.142:8888",
+    "http://172.20.45.149:8888"
+  ]
+}
