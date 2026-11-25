@@ -12,8 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()  # Charge les variables d’environnement depuis le fichier .env
 
 # Clé secrète d’administration
-ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "changeme")
-print("Token admin chargé :", ADMIN_TOKEN)
+ADMIN_TOKEN = os.getenv("ADMIN_TOKEN")
 
 # Fichier local contenant la base de données principale
 DATA_FILE = "db.json"
@@ -86,7 +85,7 @@ def post_annuaire():
     token = request.headers.get("X-API-Key") or request.args.get("token")
     if not token:
         return jsonify({"error": "Aucune clé administrateur fournie."}), 401
-    if token != ADMIN_TOKEN:
+    if not ADMIN_TOKEN or token != ADMIN_TOKEN:
         return jsonify({"error": "Accès refusé : clé administrateur invalide."}), 403
 
     # Lecture du contenu JSON envoyé par le client
@@ -123,7 +122,7 @@ def sync_now():
     token = request.headers.get("X-API-Key") or request.args.get("token")
     if not token:
         return jsonify({"ok": False, "error": "Aucune clé administrateur fournie."}), 401
-    if token != ADMIN_TOKEN:
+    if not ADMIN_TOKEN or token != ADMIN_TOKEN:
         return jsonify({"ok": False, "error": "Clé administrateur invalide."}), 403
 
     import sync  # Import local pour éviter de charger inutilement le module
@@ -138,6 +137,4 @@ def sync_now():
 # Lancement du serveur Flask
 #-----------------------------------------------#
 if __name__ == "__main__":
-    # Le serveur écoute sur toutes les interfaces (port 8888)
-    # Le mode debug=True est utile en développement mais à désactiver en production.
-    app.run(host="0.0.0.0", port=8888, debug=True)
+    app.run(port=8888)

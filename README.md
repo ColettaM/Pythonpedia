@@ -26,14 +26,14 @@ pythonpedia/
 ├─ app.py                  # Service web Flask (API publique + admin)
 ├─ sync.py                 # Script de réplication automatique
 ├─ db.json                 # Base locale des topics + annuaire
-├─ .env                    # Clé administrateur 
+├─ .env.example            # Modèle de configuration locale
 ├─ templates/
 │   ├─ index.html          # Page d’accueil et documentation API
 │   ├─ ui.html             # Interface interactive (topics + annuaire)
 │   └─ documentation.html  # Documentation technique du projet
-└─ static/                 
+└─ static/
     ├─ style.css           # Feuille de style
-    └─ style1.css         
+    └─ style1.css
 ```
 
 ---
@@ -42,32 +42,32 @@ pythonpedia/
 
 ### 1️- Prérequis
 
-* Python 3.8+
+* Python 3.10+
 * Bibliothèques : `flask`, `requests`, `python-dotenv`
 
 ### 2️- Installation
 
 ```bash
-# Cloner le projet (ou copier les fichiers)
-cd pythonpedia
+git clone https://github.com/ColettaM/Pythonpedia.git
+cd Pythonpedia
 
 # Créer un environnement virtuel
 python -m venv .venv
 source .venv/bin/activate  # (Windows: .venv\Scripts\activate)
 
 # Installer les dépendances
-pip install flask requests python-dotenv
+python -m pip install -r requirements.txt
 ```
 
 ### 3️- Fichier `.env`
 
-Crée un fichier `.env` à la racine du projet :
+Copie `.env.example` vers `.env`, puis renseigne une clé locale unique. Tu peux en générer une avec `python -c "import secrets; print(secrets.token_urlsafe(32))"`.
 
 ```
-ADMIN_TOKEN=motdedpasse
+ADMIN_TOKEN=VOTRE_TOKEN
 ```
 
-Cette clé est requise pour exécuter les actions **protégées** (ajout d’un serveur, réplication).
+La lecture des pages et de l’API fonctionne sans clé. La clé active les actions d’administration.
 
 ---
 
@@ -131,7 +131,7 @@ python app.py
 Ces routes nécessitent un **header HTTP** :
 
 ```
-X-API-Key: pythonpedia2025
+X-API-Key: VOTRE_TOKEN
 ```
 
 > (ou la valeur que tu as mise dans ton fichier `.env`)
@@ -143,7 +143,7 @@ X-API-Key: pythonpedia2025
 ```bash
 curl -X POST http://localhost:8888/ws/annuaire \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: pythonpedia2025" \
+  -H "X-API-Key: VOTRE_TOKEN" \
   -d '{"url": "http://172.20.45.150:8888"}'
 ```
 
@@ -167,7 +167,7 @@ Déclenche la fonction `sync.enrichir()` qui interroge les serveurs connus pour 
 
 ```bash
 curl -X POST http://localhost:8888/admin/sync \
-  -H "X-API-Key: pythonpedia2025"
+  -H "X-API-Key: VOTRE_TOKEN"
 ```
 
 **Réponse :**
