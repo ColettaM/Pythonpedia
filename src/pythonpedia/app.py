@@ -2,20 +2,21 @@
 #          Service web Flask – Pythonpédia     
 #-----------------------------------------------#
 
-from flask import Flask, jsonify, render_template, request
-import json, os
+import json
+import os
+
 from dotenv import load_dotenv
+from flask import Flask, jsonify, render_template, request
+
+from .paths import DATA_FILE, REPO_ROOT
 
 #-----------------------------------------------#
 # Configuration initiale
 #-----------------------------------------------#
-load_dotenv()  # Charge les variables d’environnement depuis le fichier .env
+load_dotenv(REPO_ROOT / ".env")
 
 # Clé secrète d’administration
 ADMIN_TOKEN = os.getenv("ADMIN_TOKEN")
-
-# Fichier local contenant la base de données principale
-DATA_FILE = "db.json"
 
 # Création de l’application Flask
 app = Flask(__name__)
@@ -26,7 +27,7 @@ app = Flask(__name__)
 def load_data():
     """Charge les données locales depuis le fichier JSON principal.
     Si le fichier n’existe pas, on renvoie une structure vide par défaut."""
-    if not os.path.exists(DATA_FILE):
+    if not DATA_FILE.exists():
         return {"topics": {}, "annuaire": []}
     with open(DATA_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
@@ -125,7 +126,7 @@ def sync_now():
     if not ADMIN_TOKEN or token != ADMIN_TOKEN:
         return jsonify({"ok": False, "error": "Clé administrateur invalide."}), 403
 
-    import sync  # Import local pour éviter de charger inutilement le module
+    from . import sync
     try:
         sync.enrichir()
         return jsonify({"ok": True, "message": "Réplication terminée avec succès."}), 200

@@ -21,19 +21,22 @@ Chaque instance expose une **API REST publique** permettant de partager ses donn
 
 ## Structure du projet
 
-```
-pythonpedia/
-├─ app.py                  # Service web Flask (API publique + admin)
-├─ sync.py                 # Script de réplication automatique
-├─ db.json                 # Base locale des topics + annuaire
-├─ .env.example            # Modèle de configuration locale
-├─ templates/
-│   ├─ index.html          # Page d’accueil et documentation API
-│   ├─ ui.html             # Interface interactive (topics + annuaire)
-│   └─ documentation.html  # Documentation technique du projet
-└─ static/
-    ├─ style.css           # Feuille de style
-    └─ style1.css
+```text
+Pythonpedia/
+├── README.md
+├── requirements.txt
+├── .env.example
+├── .gitignore
+├── data/
+│   └── db.json             # Topics et annuaire local
+└── src/
+    └── pythonpedia/
+        ├── __init__.py
+        ├── app.py          # Pages Flask et API
+        ├── sync.py         # Réplication
+        ├── paths.py        # Chemins de configuration et de données
+        ├── templates/
+        └── static/
 ```
 
 ---
@@ -73,8 +76,10 @@ La lecture des pages et de l’API fonctionne sans clé. La clé active les acti
 
 ## Lancer le serveur
 
+Depuis la racine du dépôt :
+
 ```bash
-python app.py
+python -m src.pythonpedia.app
 ```
 
 > Le service est accessible à l’adresse :
@@ -180,15 +185,15 @@ curl -X POST http://localhost:8888/admin/sync \
 
 ## Réplication automatique (script `sync.py`)
 
-Le script `sync.py` peut être exécuté manuellement :
+Lance la réplication manuelle depuis la racine du dépôt :
 
 ```bash
-python sync.py
+python -m src.pythonpedia.sync
 ```
 
 Il :
 
-1. Charge les serveurs connus depuis `db.json`.
+1. Charge les serveurs connus depuis `data/db.json`.
 2. Interroge chaque serveur `/ws/topics` et `/ws/topic/<topic>`.
 3. Fusionne les données (sans doublon) dans la base locale.
 4. Met à jour la liste des serveurs (`/ws/annuaire`).
@@ -205,7 +210,7 @@ Le même processus est déclenché par l’API `POST /admin/sync`.
 
 ---
 
-## Structure de la base (`db.json`)
+## Structure de la base (`data/db.json`)
 
 Exemple :
 

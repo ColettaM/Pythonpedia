@@ -11,7 +11,7 @@ import socket
 from urllib.parse import quote
 
 # Fichier JSON local servant de base de données
-DATA_FILE = "db.json"
+from .paths import DATA_FILE
 
 #-----------------------------------------------------------#
 # Fonctions utilitaires 
@@ -137,6 +137,4 @@ def enrichir():
 # Exécution directe du module
 #-----------------------------------------------------------#
 if __name__ == "__main__":
-    # Si le script est lancé directement (python3 sync.py),
-    # on exécute la fonction d’enrichissement immédiatement.
     enrichir()
