@@ -249,7 +249,6 @@ Les serveurs sont généralement découverts :
 ## Auteur
 
 **Coletta Moutsiha**
-Master 2 – Data Science
-Université d’Angers – Année 2025–2026
+Master 2 – Data Science - Université d’Angers – Année 2025–2026
 
 ---
